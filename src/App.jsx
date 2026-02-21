@@ -1160,7 +1160,7 @@ export default function GBeauty() {
         <FadeIn delay={0.1}>
           <div className="gallery-grid">
             {galleryImages.map((img, i) => (
-              <div key={i} className="gallery-item" style={{ backgroundImage: img, backgroundSize: "cover", backgroundPosition: "center" }} onClick={() => setLightbox(img)} />
+              <div key={i} className="gallery-item" style={{ backgroundImage: img, backgroundSize: "cover", backgroundPosition: "top center" }} onClick={() => setLightbox(img)} />
             ))}
           </div>
         </FadeIn>
@@ -1275,8 +1275,8 @@ export default function GBeauty() {
         <div className="page-hero" style={{ background: '#eaded0' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, position: 'relative', zIndex: 2 }}>
             <FadeIn><img src={LOGO_SRC} alt="Gena Beauty" style={{ height: 'clamp(80px, 22vh, 280px)', maxWidth: '80vw', display: 'block', objectFit: 'contain' }} /></FadeIn>
-            <FadeIn><h1>Services</h1></FadeIn>
-            <FadeIn delay={0.08}><div className="sub">Bridal · Event · Trials · Editorial · Lessons</div></FadeIn>
+            <FadeIn><h1 style={{ color: '#1a1412' }}>Services</h1></FadeIn>
+            <FadeIn delay={0.08}><div className="sub" style={{ color: 'rgba(26,20,18,0.65)' }}>Bridal · Event · Trials · Editorial · Lessons</div></FadeIn>
           </div>
         </div>
         <div className="section section-white">
@@ -1284,7 +1284,7 @@ export default function GBeauty() {
             {services.map((svc, i) => (
               <FadeIn key={i}>
                 <div className="service-item">
-                  <div className="service-img" style={{ backgroundImage: svc.img, backgroundSize: "cover", backgroundPosition: "center" }} />
+                  <div className="service-img" style={{ backgroundImage: svc.img, backgroundSize: "cover", backgroundPosition: "top center" }} />
                   <div className="service-text">
                     <h3>{svc.title}</h3>
                     <p>{svc.desc}</p>
@@ -1309,7 +1309,7 @@ export default function GBeauty() {
         <FadeIn delay={0.1}>
           <div className="gallery-grid">
             {highlightImages.map((img, i) => (
-              <div key={i} className="gallery-item" style={{ backgroundImage: img, backgroundSize: "cover", backgroundPosition: "center" }} onClick={() => setLightbox(img)} />
+              <div key={i} className="gallery-item" style={{ backgroundImage: img, backgroundSize: "cover", backgroundPosition: "top center" }} onClick={() => setLightbox(img)} />
             ))}
           </div>
         </FadeIn>
@@ -1544,7 +1544,7 @@ export default function GBeauty() {
       {lightbox && (
         <div className="lightbox" onClick={() => setLightbox(null)}>
           <button className="lightbox-close">CLOSE ✕</button>
-          <div style={{ width: "80vw", height: "80vh", backgroundImage: lightbox, backgroundSize: "cover", backgroundPosition: "center", borderRadius: "2px" }} />
+          <div style={{ width: "80vw", height: "80vh", backgroundImage: lightbox, backgroundSize: "contain", backgroundPosition: "center", backgroundRepeat: "no-repeat", borderRadius: "2px" }} />
         </div>
       )}
     </>
