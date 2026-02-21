@@ -63,7 +63,7 @@ const services = [
   {
     title: "Bridal",
     desc: "Soft, timeless, and camera-ready makeup designed to enhance your natural beauty while lasting all day. Bridal looks are customized to feel like you — elevated, polished, and confident from \"I do\" to the last dance.",
-    img: P.bridal,
+    img: P.blush,
   },
   {
     title: "Event / Soft Glam",
@@ -78,12 +78,12 @@ const services = [
   {
     title: "Editorial / Avant-Garde",
     desc: "Creative, high-fashion makeup created for photoshoots, runway, and artistic projects. Bold, expressive, and concept-driven — editorial makeup is designed to tell a story and make a visual statement on camera.",
-    img: P.editorial,
+    img: P.golden,
   },
   {
     title: "Makeup Lessons",
     desc: "One-on-one personalized lessons tailored to your skill level and goals. Learn techniques, product placement, and tips to confidently recreate looks on your own.",
-    img: P.warm,
+    img: P.moody,
   },
 ];
 
