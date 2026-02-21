@@ -1240,11 +1240,12 @@ export default function GBeauty() {
 
       {/* ═══ SERVICES ═══ */}
       <section id="services">
-        <div className="page-hero">
-          <div className="page-hero-bg" style={{ backgroundImage: "none", backgroundSize: "cover", backgroundPosition: "center", opacity: 1 }} />
-          <FadeIn><img src={LOGO_SRC} alt="Gena Beauty" style={{ height: 80, display: "block", margin: "0 auto 16px" }} /></FadeIn>
-          <FadeIn><h1>Services</h1></FadeIn>
-          <FadeIn delay={0.08}><div className="sub">Bridal · Event · Trials · Editorial · Lessons</div></FadeIn>
+        <div className="page-hero" style={{ background: '#b09880' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, position: 'relative', zIndex: 2 }}>
+            <FadeIn><img src={LOGO_SRC} alt="Gena Beauty" style={{ height: 120, display: 'block' }} /></FadeIn>
+            <FadeIn><h1>Services</h1></FadeIn>
+            <FadeIn delay={0.08}><div className="sub">Bridal · Event · Trials · Editorial · Lessons</div></FadeIn>
+          </div>
         </div>
         <div className="section section-white">
           <div className="services-list">
