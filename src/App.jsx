@@ -213,6 +213,12 @@ export default function GBeauty() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Always start at top on load/refresh
+  useEffect(() => {
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
+  }, []);
+
   // Intro splash → logo moves → slideshow starts
   useEffect(() => {
     const t1 = setTimeout(() => setIntroPhase("moving"), 2000);
