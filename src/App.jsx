@@ -503,10 +503,11 @@ export default function GBeauty() {
         }
         .hero-dot.active { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px rgba(183,155,105,0.5); }
 
-        /* Splash background glow */
+        /* Splash background */
         .hero-splash-bg {
-          position: absolute; inset: 0; z-index: 1;
-          background: #f8f5f0;
+          position: fixed; inset: 0; z-index: 105;
+          background: #ffffff;
+          pointer-events: none;
           transition: opacity 1.2s ease;
         }
         .hero-splash-bg.hide { opacity: 0; }
