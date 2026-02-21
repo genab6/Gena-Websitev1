@@ -256,10 +256,10 @@ export default function GBeauty() {
   // 3. Create 2 Email Templates (see setup guide) → copy Template IDs below
   // 4. Copy your Public Key from Account → General
   // Business email: genabeauty.mua@gmail.com
-  const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY";      // ← replace
-  const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";      // ← replace
-  const EMAILJS_NOTIFY_TEMPLATE = "YOUR_NOTIFY_ID";  // ← template that emails YOU
-  const EMAILJS_CONFIRM_TEMPLATE = "YOUR_CONFIRM_ID";// ← auto-reply to client
+  const EMAILJS_PUBLIC_KEY = "64IPicoowXXVfWt3y";
+  const EMAILJS_SERVICE_ID = "service_tc6j74h";
+  const EMAILJS_NOTIFY_TEMPLATE = "template_kznrs9e";  // emails Gena
+  const EMAILJS_CONFIRM_TEMPLATE = "template_ixr22uu"; // auto-reply to client
 
   useEffect(() => {
     if (!document.getElementById("emailjs-sdk")) {
