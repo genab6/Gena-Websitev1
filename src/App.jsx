@@ -1175,7 +1175,7 @@ export default function GBeauty() {
 
       {/* ═══ PRESS BAR ═══ */}
       <div className="press-bar-placeholder">
-        {["VOGUE", "BRIDES", "ALLURE", "THE KNOT", "MARTHA STEWART"].map((l, i) => (
+        {["VOGUE", "MAX", "GETTYIMAGES", "FASHION MAGAZINE", "NYFW"].map((l, i) => (
           <span key={i}>{l}</span>
         ))}
       </div>
