@@ -376,7 +376,7 @@ export default function GBeauty() {
         }
 
         html { scroll-behavior: smooth; }
-        body { font-family: var(--sans); color: var(--charcoal); background: var(--white); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        body { font-family: var(--sans); color: var(--charcoal); background: var(--white); overflow-x: hidden; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
         /* ═══ NAV ═══ */
         .nav {
@@ -412,13 +412,35 @@ export default function GBeauty() {
         }
         .nav-links a:hover::after { transform: scaleX(1); }
 
-        .hamburger { display: none; }
-        .mobile-menu { display: none; }
+        .hamburger {
+          display: none;
+          flex-direction: column; justify-content: center; align-items: center;
+          gap: 5px; width: 36px; height: 36px;
+          background: none; border: none; cursor: pointer; z-index: 120; padding: 4px;
+          position: absolute; right: 16px;
+        }
+        .hamburger span {
+          display: block; width: 22px; height: 2px;
+          background: var(--white); border-radius: 2px;
+          transition: all 0.3s;
+        }
+        .nav.scrolled .hamburger span { background: var(--charcoal); }
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        .mobile-menu {
+          display: none; position: fixed; inset: 0; z-index: 115;
+          background: rgba(248,246,243,0.98); backdrop-filter: blur(12px);
+          flex-direction: column; align-items: center; justify-content: center; gap: 36px;
+        }
+        .mobile-menu.open { display: flex; }
+        .mobile-menu a {
+          font-family: var(--sans); font-size: 13px; letter-spacing: 0.3em;
+          text-transform: uppercase; color: var(--charcoal); text-decoration: none; cursor: pointer;
+        }
         @media (max-width: 600px) {
-          .nav-links a {
-            font-size: 9px;
-            letter-spacing: 0.15em;
-          }
+          .nav-links { display: none; }
+          .hamburger { display: flex; }
         }
 
         /* ═══ HERO ═══ */
@@ -426,6 +448,7 @@ export default function GBeauty() {
           position: relative; height: 100vh; min-height: 640px;
           overflow: hidden; background: #1a1412;
         }
+        @supports (height: 100dvh) { .hero { height: 100dvh; } }
         .hero-slide {
           position: absolute; inset: 0;
           background-size: cover; background-position: center;
@@ -476,7 +499,7 @@ export default function GBeauty() {
                       box-shadow 0.5s ease;
         }
         .hero-logo-wrap.splash .hero-logo {
-          height: clamp(360px, 60vh, 600px);
+          height: clamp(160px, 45vw, 500px);
         }
         .hero-logo-wrap.moving .hero-logo,
         .hero-logo-wrap.done .hero-logo {
@@ -1057,7 +1080,16 @@ export default function GBeauty() {
             <a key={id} onClick={() => scrollTo(id)}>{l}</a>
           ))}
         </div>
+        <button className={`hamburger ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
+          <span /><span /><span />
+        </button>
       </nav>
+      {/* Mobile menu overlay */}
+      <div className={`mobile-menu ${menuOpen ? "open" : ""}`}>
+        {[["home","Home"],["about","About"],["services","Services"],["highlights","Portfolio"],["contact","Inquire Here"]].map(([id,l]) => (
+          <a key={id} onClick={() => scrollTo(id)}>{l}</a>
+        ))}
+      </div>
 
       {/* ═══ HERO (splash intro → slideshow) ═══ */}
       <section id="home" className="hero">
@@ -1242,7 +1274,7 @@ export default function GBeauty() {
       <section id="services">
         <div className="page-hero" style={{ background: '#eaded0' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, position: 'relative', zIndex: 2 }}>
-            <FadeIn><img src={LOGO_SRC} alt="Gena Beauty" style={{ height: 280, display: 'block' }} /></FadeIn>
+            <FadeIn><img src={LOGO_SRC} alt="Gena Beauty" style={{ height: 'clamp(80px, 22vh, 280px)', maxWidth: '80vw', display: 'block', objectFit: 'contain' }} /></FadeIn>
             <FadeIn><h1>Services</h1></FadeIn>
             <FadeIn delay={0.08}><div className="sub">Bridal · Event · Trials · Editorial · Lessons</div></FadeIn>
           </div>
