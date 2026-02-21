@@ -1242,7 +1242,7 @@ export default function GBeauty() {
       <section id="services">
         <div className="page-hero" style={{ background: '#b09880' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, position: 'relative', zIndex: 2 }}>
-            <FadeIn><img src={LOGO_SRC} alt="Gena Beauty" style={{ height: 156, display: 'block' }} /></FadeIn>
+            <FadeIn><img src={LOGO_SRC} alt="Gena Beauty" style={{ height: 280, display: 'block' }} /></FadeIn>
             <FadeIn><h1>Services</h1></FadeIn>
             <FadeIn delay={0.08}><div className="sub">Bridal · Event · Trials · Editorial · Lessons</div></FadeIn>
           </div>
