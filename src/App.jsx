@@ -404,26 +404,8 @@ export default function GBeauty() {
     if (formErrors[k]) setFormErrors(p => ({ ...p, [k]: false }));
   };
 
-  // ── EmailJS setup ──
-  // 1. Go to https://www.emailjs.com and create a free account
-  // 2. Add Gmail as an Email Service → copy the Service ID below
-  // 3. Create 2 Email Templates (see setup guide) → copy Template IDs below
-  // 4. Copy your Public Key from Account → General
-  // Business email: genabeauty.mua@gmail.com
-  const EMAILJS_PUBLIC_KEY = "64lPicoowXXVfWt3y";
-  const EMAILJS_SERVICE_ID = "service_tc6j74h";
-  const EMAILJS_NOTIFY_TEMPLATE = "template_kznrs9e";  // emails Gena
-  const EMAILJS_CONFIRM_TEMPLATE = "template_ixr22uu"; // auto-reply to client
-
-  useEffect(() => {
-    if (!document.getElementById("emailjs-sdk")) {
-      const s = document.createElement("script");
-      s.id = "emailjs-sdk";
-      s.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
-      s.onload = () => window.emailjs?.init(EMAILJS_PUBLIC_KEY);
-      document.head.appendChild(s);
-    }
-  }, []);
+  // ── Google Form submission ──
+  const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfbZa9n_-CMFZuQGufG1d_t4dD2KTZcOIleNYEiEfXySD_5uQ/formResponse";
 
   useEffect(() => {
     if (!beholdRef.current) return;
@@ -452,7 +434,6 @@ export default function GBeauty() {
     if (!formData.phone.trim()) errs.phone = true;
     if (Object.keys(errs).length) {
       setFormErrors(errs);
-      // Scroll to first error field
       const firstErrKey = Object.keys(errs)[0];
       const el = document.querySelector(`[data-field="${firstErrKey}"]`);
       if (el) {
@@ -464,42 +445,32 @@ export default function GBeauty() {
 
     setFormStatus("sending");
 
-    const templateParams = {
-      from_name: `${formData.firstName} ${formData.lastName}`,
-      from_email: formData.email,
-      phone: formData.phone,
-      service: formData.service || "Not specified",
-      event_date: formData.eventDate || "Not specified",
-      event_location: formData.eventLocation || "Not specified",
-      guest_count: formData.guestCount || "Not specified",
-      referral: formData.referral || "Not specified",
-      details: formData.details || "None provided",
-      inspiration: formData.inspiration || "None provided",
-    };
+    const body = new URLSearchParams({
+      "entry.143224917": formData.firstName,
+      "entry.1084059567": formData.lastName,
+      "entry.1083864460": formData.email,
+      "entry.147678694": formData.phone,
+      "entry.1080128230": formData.service || "",
+      "entry.484388148": formData.eventDate || "",
+      "entry.1912850782": formData.eventLocation || "",
+      "entry.295835615": formData.guestCount || "",
+      "entry.278716152": formData.referral || "",
+      "entry.506725094": formData.details || "",
+      "entry.1552296061": formData.inspiration || "",
+    });
 
     try {
-      if (!window.emailjs || EMAILJS_PUBLIC_KEY === "YOUR_PUBLIC_KEY") {
-        // Demo mode — no EmailJS configured yet
-        await new Promise(r => setTimeout(r, 1200));
-        setFormStatus("sent");
-        setFormData({ firstName: "", lastName: "", email: "", phone: "", service: "", eventDate: "", eventLocation: "", guestCount: "", referral: "", details: "", inspiration: "" });
-        return;
-      }
-
-      // Send notification email to business owner
-      await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_NOTIFY_TEMPLATE, templateParams);
-
-      // Send confirmation auto-reply to client
-      await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_CONFIRM_TEMPLATE, {
-        to_name: formData.firstName,
-        to_email: formData.email,
-        ...templateParams,
+      await fetch(GOOGLE_FORM_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString(),
       });
 
       setFormStatus("sent");
       setFormData({ firstName: "", lastName: "", email: "", phone: "", service: "", eventDate: "", eventLocation: "", guestCount: "", referral: "", details: "", inspiration: "" });
     } catch (err) {
-      console.error("EmailJS error:", err);
+      console.error("Form submission error:", err);
       setFormStatus("error");
     }
   };
