@@ -161,6 +161,74 @@ function FadeIn({ children, delay = 0, className = "", style = {} }) {
   );
 }
 
+// ─── GALLERY CAROUSEL ───────────────────────────────────
+function GalleryCarousel({ images, onClose }) {
+  const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const touchStart = useRef(0);
+  const touchEnd = useRef(0);
+  const len = images.length;
+
+  const next = React.useCallback(() => setIdx(p => (p + 1) % len), [len]);
+  const prev = () => setIdx(p => (p - 1 + len) % len);
+
+  useEffect(() => {
+    if (paused) return;
+    const timer = setTimeout(next, 5000);
+    return () => clearTimeout(timer);
+  }, [idx, paused, next]);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'ArrowRight') next();
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [next, onClose]);
+
+  const handleTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
+  const handleTouchMove = (e) => { touchEnd.current = e.touches[0].clientX; };
+  const handleTouchEnd = () => {
+    const diff = touchStart.current - touchEnd.current;
+    if (diff > 75) next();
+    if (diff < -75) prev();
+  };
+
+  return (
+    <div className="carousel-overlay"
+         onMouseEnter={() => setPaused(true)}
+         onMouseLeave={() => setPaused(false)}
+         onTouchStart={handleTouchStart}
+         onTouchMove={handleTouchMove}
+         onTouchEnd={handleTouchEnd}>
+      <button className="carousel-back" onClick={onClose}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="15 18 9 12 15 6" /></svg>
+        BACK
+      </button>
+      <div className="carousel-stage">
+        {images.map((img, i) => (
+          <div key={i} className={`carousel-slide ${i === idx ? 'active' : ''}`}
+               style={{ backgroundImage: img, backgroundSize: 'contain',
+                        backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} />
+        ))}
+      </div>
+      <button className="carousel-arrow carousel-prev" onClick={(e) => { e.stopPropagation(); prev(); }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="15 18 9 12 15 6" /></svg>
+      </button>
+      <button className="carousel-arrow carousel-next" onClick={(e) => { e.stopPropagation(); next(); }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="9 6 15 12 9 18" /></svg>
+      </button>
+      <div className="carousel-dots">
+        {images.map((_, i) => (
+          <button key={i} className={`carousel-dot ${i === idx ? 'active' : ''}`} onClick={() => setIdx(i)} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN COMPONENT ─────────────────────────────────────
 export default function GBeauty() {
   const beholdRef = useRef(null);
@@ -182,6 +250,8 @@ export default function GBeauty() {
   const [locationSuggestions, setLocationSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [beholdStatus, setBeholdStatus] = useState("loading"); // loading | loaded | failed
+  const [isGalleryOpen, setGalleryOpen] = useState(false);
+  const highlightsSectionRef = useRef(null);
   const locationRef = useRef(null);
 
   const LOCATIONS = [
@@ -366,6 +436,15 @@ export default function GBeauty() {
       setFormStatus("error");
     }
   };
+
+  if (isGalleryOpen) {
+    return <GalleryCarousel images={highlightImages} onClose={() => {
+      setGalleryOpen(false);
+      setTimeout(() => {
+        highlightsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }} />;
+  }
 
   return (
     <>
@@ -742,16 +821,28 @@ export default function GBeauty() {
         /* ═══ SERVICES ═══ */
         .services-list {
           max-width: 1050px; margin: 0 auto;
-          display: grid; gap: clamp(56px, 7vw, 88px);
+          display: flex; flex-direction: column;
+          align-items: center; gap: clamp(72px, 9vw, 110px);
         }
         .service-item {
-          display: grid; grid-template-columns: 1fr 1fr;
-          gap: clamp(32px, 5vw, 72px); align-items: center;
+          position: relative; width: 100%;
+          max-width: 640px; text-align: center;
         }
-        .service-item:nth-child(even) { direction: rtl; }
-        .service-item:nth-child(even) > * { direction: ltr; }
-        .service-img {
-          width: 100%; aspect-ratio: 4/5;
+        .service-accent {
+          position: absolute; top: 50%;
+          transform: translateY(-50%);
+          width: clamp(140px, 16vw, 220px);
+          aspect-ratio: 4/5;
+          opacity: 0.12;
+          z-index: 0;
+          pointer-events: none;
+          filter: grayscale(30%);
+          transition: opacity 1s cubic-bezier(0.22,1,0.36,1);
+        }
+        .service-item:nth-child(odd) .service-accent { left: -28%; }
+        .service-item:nth-child(even) .service-accent { right: -28%; left: auto; }
+        .service-text {
+          position: relative; z-index: 1;
         }
         .service-text h3 {
           font-family: var(--serif); font-weight: 400;
@@ -761,6 +852,7 @@ export default function GBeauty() {
         .service-text p {
           font-family: var(--sans); font-size: 13.5px;
           line-height: 2; color: var(--text); margin-bottom: 24px;
+          max-width: 52ch; margin-left: auto; margin-right: auto;
         }
         .service-text .inquire-link {
           font-family: var(--sans); font-size: 11px;
@@ -772,8 +864,8 @@ export default function GBeauty() {
         }
         .service-text .inquire-link:hover { color: var(--gold); border-color: var(--gold); }
         @media (max-width: 768px) {
-          .service-item { grid-template-columns: 1fr; }
-          .service-item:nth-child(even) { direction: ltr; }
+          .service-accent { display: none; }
+          .service-item { max-width: 100%; }
         }
 
         /* ═══ TESTIMONIAL ═══ */
@@ -981,6 +1073,72 @@ export default function GBeauty() {
           font-family: var(--sans); font-size: 13px; color: var(--white);
           background: none; border: none; cursor: pointer;
           letter-spacing: 0.15em;
+        }
+
+        /* ═══ SEE MORE BUTTON ═══ */
+        .see-more-btn {
+          display: inline-block;
+          font-family: var(--sans); font-size: 11px;
+          letter-spacing: 0.25em; text-transform: uppercase;
+          color: var(--gold); background: none;
+          border: 1px solid var(--gold);
+          padding: 15px 40px; cursor: pointer;
+          transition: all 0.3s;
+        }
+        .see-more-btn:hover {
+          background: var(--gold); color: var(--white);
+        }
+
+        /* ═══ GALLERY CAROUSEL ═══ */
+        .carousel-overlay {
+          position: fixed; inset: 0; z-index: 300;
+          background: #1a1412;
+          display: flex; align-items: center; justify-content: center;
+        }
+        .carousel-back {
+          position: absolute; top: 24px; left: 28px; z-index: 310;
+          font-family: var(--sans); font-size: 12px;
+          letter-spacing: 0.2em; color: var(--cream);
+          background: none; border: 1px solid rgba(255,255,255,0.2);
+          padding: 10px 24px; cursor: pointer;
+          transition: all 0.3s;
+          display: flex; align-items: center; gap: 8px;
+        }
+        .carousel-back:hover { border-color: var(--cream); }
+        .carousel-stage {
+          position: relative; width: 80vw; height: 80vh;
+        }
+        .carousel-slide {
+          position: absolute; inset: 0;
+          opacity: 0;
+          transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1);
+        }
+        .carousel-slide.active { opacity: 1; }
+        .carousel-arrow {
+          position: absolute; top: 50%; transform: translateY(-50%);
+          background: rgba(0,0,0,0.3); border: none;
+          color: rgba(255,255,255,0.6); padding: 16px 12px;
+          cursor: pointer; transition: all 0.3s; z-index: 310;
+          border-radius: 2px;
+        }
+        .carousel-arrow:hover { color: var(--cream); background: rgba(0,0,0,0.5); }
+        .carousel-prev { left: 24px; }
+        .carousel-next { right: 24px; }
+        .carousel-dots {
+          position: absolute; bottom: 28px; left: 50%;
+          transform: translateX(-50%);
+          display: flex; gap: 10px; z-index: 310;
+        }
+        .carousel-dot {
+          width: 8px; height: 8px; border-radius: 50%;
+          border: 1px solid var(--taupe); background: transparent;
+          cursor: pointer; transition: all 0.3s; padding: 0;
+        }
+        .carousel-dot.active { background: var(--gold); border-color: var(--gold); }
+        @media (max-width: 768px) {
+          .carousel-arrow { display: none; }
+          .carousel-stage { width: 100vw; height: 75vh; }
+          .carousel-back { top: 16px; left: 16px; font-size: 11px; padding: 8px 16px; }
         }
 
         /* ═══ BACK TO TOP ═══ */
@@ -1301,7 +1459,7 @@ export default function GBeauty() {
             {services.map((svc, i) => (
               <FadeIn key={i}>
                 <div className="service-item">
-                  <div className="service-img" style={{ backgroundImage: svc.img, backgroundSize: "cover", backgroundPosition: "top center" }} />
+                  <div className="service-accent" style={{ backgroundImage: svc.img, backgroundSize: "cover", backgroundPosition: "top center" }} />
                   <div className="service-text">
                     <h3>{svc.title}</h3>
                     <p>{svc.desc}</p>
@@ -1315,7 +1473,7 @@ export default function GBeauty() {
       </section>
 
       {/* ═══ HIGHLIGHTS (fuller gallery) ═══ */}
-      <section id="highlights" className="section section-cream">
+      <section id="highlights" className="section section-cream" ref={highlightsSectionRef}>
         <FadeIn>
           <div className="divider" />
           <div className="section-title">Highlights</div>
@@ -1328,6 +1486,13 @@ export default function GBeauty() {
             {highlightImages.map((img, i) => (
               <div key={i} className="gallery-item" style={{ backgroundImage: img, backgroundSize: "cover", backgroundPosition: "top center" }} onClick={() => setLightbox(img)} />
             ))}
+          </div>
+        </FadeIn>
+        <FadeIn delay={0.15}>
+          <div style={{ textAlign: 'center', marginTop: 'clamp(32px, 4vw, 48px)' }}>
+            <button className="see-more-btn" onClick={() => setGalleryOpen(true)}>
+              SEE MORE
+            </button>
           </div>
         </FadeIn>
       </section>
