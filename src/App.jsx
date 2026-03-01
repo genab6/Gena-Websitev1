@@ -161,8 +161,8 @@ function FadeIn({ children, delay = 0, className = "", style = {} }) {
   );
 }
 
-// ─── GALLERY CAROUSEL ───────────────────────────────────
-function GalleryCarousel({ images, onClose }) {
+// ─── MINI CAROUSEL (reusable per category) ──────────────
+function MiniCarousel({ images }) {
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
   const touchStart = useRef(0);
@@ -178,16 +178,6 @@ function GalleryCarousel({ images, onClose }) {
     return () => clearTimeout(timer);
   }, [idx, paused, next]);
 
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.key === 'ArrowRight') next();
-      if (e.key === 'ArrowLeft') prev();
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [next, onClose]);
-
   const handleTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
   const handleTouchMove = (e) => { touchEnd.current = e.touches[0].clientX; };
   const handleTouchEnd = () => {
@@ -197,33 +187,110 @@ function GalleryCarousel({ images, onClose }) {
   };
 
   return (
-    <div className="carousel-overlay"
+    <div className="mini-carousel"
          onMouseEnter={() => setPaused(true)}
          onMouseLeave={() => setPaused(false)}
          onTouchStart={handleTouchStart}
          onTouchMove={handleTouchMove}
          onTouchEnd={handleTouchEnd}>
-      <button className="carousel-back" onClick={onClose}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="15 18 9 12 15 6" /></svg>
-        BACK
-      </button>
-      <div className="carousel-stage">
+      <div className="mini-carousel-stage">
         {images.map((img, i) => (
-          <div key={i} className={`carousel-slide ${i === idx ? 'active' : ''}`}
-               style={{ backgroundImage: img, backgroundSize: 'contain',
-                        backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} />
+          <div key={i} className={`mini-carousel-slide ${i === idx ? 'active' : ''}`}
+               style={img.startsWith('placeholder:')
+                 ? {}
+                 : { backgroundImage: img, backgroundSize: 'cover', backgroundPosition: 'top center' }
+               }>
+            {img.startsWith('placeholder:') && (
+              <div className="carousel-placeholder">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.3">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+                <span>{img.replace('placeholder:', '')}</span>
+              </div>
+            )}
+          </div>
         ))}
       </div>
-      <button className="carousel-arrow carousel-prev" onClick={(e) => { e.stopPropagation(); prev(); }}>
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="15 18 9 12 15 6" /></svg>
+      <button className="mini-arrow mini-prev" onClick={(e) => { e.stopPropagation(); prev(); }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="15 18 9 12 15 6" /></svg>
       </button>
-      <button className="carousel-arrow carousel-next" onClick={(e) => { e.stopPropagation(); next(); }}>
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="9 6 15 12 9 18" /></svg>
+      <button className="mini-arrow mini-next" onClick={(e) => { e.stopPropagation(); next(); }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="9 6 15 12 9 18" /></svg>
       </button>
-      <div className="carousel-dots">
+      <div className="mini-dots">
         {images.map((_, i) => (
-          <button key={i} className={`carousel-dot ${i === idx ? 'active' : ''}`} onClick={() => setIdx(i)} />
+          <button key={i} className={`mini-dot ${i === idx ? 'active' : ''}`} onClick={() => setIdx(i)} />
         ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── GALLERY PAGE DATA ──────────────────────────────────
+const galleryCategories = [
+  {
+    title: "Bridal",
+    desc: "Timeless, camera-ready bridal looks",
+    images: ["placeholder:Bridal 1", "placeholder:Bridal 2", "placeholder:Bridal 3", "placeholder:Bridal 4"],
+  },
+  {
+    title: "Soft Glam",
+    desc: "Polished, radiant event makeup",
+    images: ["placeholder:Glam 1", "placeholder:Glam 2", "placeholder:Glam 3", "placeholder:Glam 4"],
+  },
+  {
+    title: "Editorial",
+    desc: "Bold, creative looks for camera and runway",
+    images: ["placeholder:Editorial 1", "placeholder:Editorial 2", "placeholder:Editorial 3", "placeholder:Editorial 4"],
+  },
+  {
+    title: "Behind the Scenes",
+    desc: "A glimpse into the artistry process",
+    images: ["placeholder:BTS 1", "placeholder:BTS 2", "placeholder:BTS 3", "placeholder:BTS 4"],
+  },
+];
+
+// ─── FULL GALLERY PAGE ──────────────────────────────────
+function GalleryPage({ onClose }) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return (
+    <div className="gallery-page">
+      <nav className="gallery-page-nav">
+        <button className="carousel-back" onClick={onClose}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="15 18 9 12 15 6" /></svg>
+          BACK
+        </button>
+      </nav>
+
+      <div className="gallery-page-hero">
+        <h1>Portfolio</h1>
+        <p>Scroll through collections of bridal, glam, editorial, and creative work.</p>
+      </div>
+
+      {galleryCategories.map((cat, i) => (
+        <section key={i} className="gallery-page-section">
+          <div className="gallery-page-section-header">
+            <h2>{cat.title}</h2>
+            <p>{cat.desc}</p>
+          </div>
+          <MiniCarousel images={cat.images} />
+        </section>
+      ))}
+
+      <div className="gallery-page-footer">
+        <p>Ready to book? Let's create something beautiful.</p>
+        <button className="see-more-btn" onClick={onClose}>BACK TO SITE</button>
       </div>
     </div>
   );
@@ -438,7 +505,7 @@ export default function GBeauty() {
   };
 
   if (isGalleryOpen) {
-    return <GalleryCarousel images={highlightImages} onClose={() => {
+    return <GalleryPage onClose={() => {
       setGalleryOpen(false);
       setTimeout(() => {
         highlightsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -1089,56 +1156,120 @@ export default function GBeauty() {
           background: var(--gold); color: var(--white);
         }
 
-        /* ═══ GALLERY CAROUSEL ═══ */
-        .carousel-overlay {
-          position: fixed; inset: 0; z-index: 300;
-          background: #1a1412;
-          display: flex; align-items: center; justify-content: center;
+        /* ═══ GALLERY PAGE ═══ */
+        .gallery-page {
+          min-height: 100vh; background: var(--cream);
+        }
+        .gallery-page-nav {
+          position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+          padding: 20px 28px;
+          background: linear-gradient(180deg, rgba(237,229,218,0.95) 0%, rgba(237,229,218,0) 100%);
         }
         .carousel-back {
-          position: absolute; top: 24px; left: 28px; z-index: 310;
           font-family: var(--sans); font-size: 12px;
-          letter-spacing: 0.2em; color: var(--cream);
-          background: none; border: 1px solid rgba(255,255,255,0.2);
+          letter-spacing: 0.2em; color: var(--charcoal);
+          background: none; border: 1px solid var(--border);
           padding: 10px 24px; cursor: pointer;
           transition: all 0.3s;
-          display: flex; align-items: center; gap: 8px;
+          display: inline-flex; align-items: center; gap: 8px;
         }
-        .carousel-back:hover { border-color: var(--cream); }
-        .carousel-stage {
-          position: relative; width: 80vw; height: 80vh;
+        .carousel-back:hover { border-color: var(--charcoal); }
+        .gallery-page-hero {
+          text-align: center;
+          padding: clamp(120px, 18vh, 200px) 24px clamp(60px, 8vh, 100px);
         }
-        .carousel-slide {
+        .gallery-page-hero h1 {
+          font-family: var(--serif); font-weight: 400;
+          font-size: clamp(36px, 5vw, 56px);
+          letter-spacing: 0.06em; color: var(--charcoal);
+          margin-bottom: 16px;
+        }
+        .gallery-page-hero p {
+          font-family: var(--serif); font-style: italic;
+          font-size: clamp(14px, 1.6vw, 18px);
+          color: var(--muted); max-width: 500px; margin: 0 auto;
+        }
+        .gallery-page-section {
+          max-width: 900px; margin: 0 auto;
+          padding: clamp(40px, 6vw, 80px) 24px;
+          border-top: 1px solid var(--border);
+        }
+        .gallery-page-section-header {
+          text-align: center; margin-bottom: clamp(28px, 4vw, 44px);
+        }
+        .gallery-page-section-header h2 {
+          font-family: var(--serif); font-weight: 400;
+          font-size: clamp(24px, 3vw, 34px);
+          letter-spacing: 0.04em; color: var(--charcoal);
+          margin-bottom: 8px;
+        }
+        .gallery-page-section-header p {
+          font-family: var(--serif); font-style: italic;
+          font-size: 14px; color: var(--muted);
+        }
+        .gallery-page-footer {
+          text-align: center;
+          padding: clamp(60px, 8vw, 100px) 24px;
+          border-top: 1px solid var(--border);
+        }
+        .gallery-page-footer p {
+          font-family: var(--serif); font-style: italic;
+          font-size: clamp(16px, 2vw, 20px);
+          color: var(--muted); margin-bottom: 32px;
+        }
+
+        /* ═══ MINI CAROUSEL ═══ */
+        .mini-carousel {
+          position: relative; width: 100%;
+          aspect-ratio: 3/4; max-height: 600px;
+          margin: 0 auto;
+        }
+        .mini-carousel-stage {
+          position: relative; width: 100%; height: 100%;
+          overflow: hidden;
+        }
+        .mini-carousel-slide {
           position: absolute; inset: 0;
           opacity: 0;
           transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1);
         }
-        .carousel-slide.active { opacity: 1; }
-        .carousel-arrow {
+        .mini-carousel-slide.active { opacity: 1; }
+        .carousel-placeholder {
+          width: 100%; height: 100%;
+          background: var(--light);
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center; gap: 12px;
+          color: var(--taupe);
+        }
+        .carousel-placeholder span {
+          font-family: var(--sans); font-size: 11px;
+          letter-spacing: 0.2em; text-transform: uppercase;
+        }
+        .mini-arrow {
           position: absolute; top: 50%; transform: translateY(-50%);
-          background: rgba(0,0,0,0.3); border: none;
-          color: rgba(255,255,255,0.6); padding: 16px 12px;
-          cursor: pointer; transition: all 0.3s; z-index: 310;
+          background: rgba(255,255,255,0.8); border: none;
+          color: var(--charcoal); padding: 12px 10px;
+          cursor: pointer; transition: all 0.3s; z-index: 10;
           border-radius: 2px;
+          backdrop-filter: blur(4px);
         }
-        .carousel-arrow:hover { color: var(--cream); background: rgba(0,0,0,0.5); }
-        .carousel-prev { left: 24px; }
-        .carousel-next { right: 24px; }
-        .carousel-dots {
-          position: absolute; bottom: 28px; left: 50%;
-          transform: translateX(-50%);
-          display: flex; gap: 10px; z-index: 310;
+        .mini-arrow:hover { background: var(--white); }
+        .mini-prev { left: 12px; }
+        .mini-next { right: 12px; }
+        .mini-dots {
+          display: flex; gap: 8px;
+          justify-content: center;
+          margin-top: 20px;
         }
-        .carousel-dot {
-          width: 8px; height: 8px; border-radius: 50%;
+        .mini-dot {
+          width: 7px; height: 7px; border-radius: 50%;
           border: 1px solid var(--taupe); background: transparent;
           cursor: pointer; transition: all 0.3s; padding: 0;
         }
-        .carousel-dot.active { background: var(--gold); border-color: var(--gold); }
+        .mini-dot.active { background: var(--gold); border-color: var(--gold); }
         @media (max-width: 768px) {
-          .carousel-arrow { display: none; }
-          .carousel-stage { width: 100vw; height: 75vh; }
-          .carousel-back { top: 16px; left: 16px; font-size: 11px; padding: 8px 16px; }
+          .mini-arrow { display: none; }
+          .mini-carousel { aspect-ratio: 3/4; }
         }
 
         /* ═══ BACK TO TOP ═══ */
