@@ -35,12 +35,12 @@ const P = {
 const heroSlides = [P.bridal, P.editorial, P.warm];
 
 const galleryImages = [
-  "url('/gallery/3.jpg')",
-  "url('/gallery/2.jpeg')",
   "url('/gallery/1.jpg')",
-  "url('/gallery/6.JPG')",
+  "url('/gallery/2.jpeg')",
+  "url('/gallery/3.jpg')",
   "url('/gallery/4.JPG')",
   "url('/gallery/5.JPG')",
+  "url('/gallery/6.JPG')",
 ];
 
 const instaImages = [
