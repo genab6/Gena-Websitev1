@@ -1332,13 +1332,13 @@ export default function GBeauty() {
             Explore a curated selection of bridal, editorial, and special occasion looks.
           </div>
         </FadeIn>
-        <FadeIn delay={0.1}>
-          <div className="gallery-grid">
-            {galleryImages.map((img, i) => (
-              <div key={i} className="gallery-item" style={{ backgroundImage: img, backgroundSize: "cover", backgroundPosition: "top center" }} onClick={() => setLightbox(img)} />
-            ))}
-          </div>
-        </FadeIn>
+        <div className="gallery-grid">
+          {galleryImages.map((img, i) => (
+            <FadeIn key={i} delay={0.1 + i * 0.12}>
+              <div className="gallery-item" style={{ backgroundImage: img, backgroundSize: "cover", backgroundPosition: "top center" }} onClick={() => setLightbox(img)} />
+            </FadeIn>
+          ))}
+        </div>
         <FadeIn delay={0.15}>
           <button className="view-work-btn" onClick={() => scrollTo("highlights")}>VIEW MORE WORK</button>
         </FadeIn>
