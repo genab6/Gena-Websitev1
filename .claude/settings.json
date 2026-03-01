@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git pull:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git push:*)",
+      "Read(//c/Users/genab/AppData/Local/Temp/**)",
+      "Read(//c/Users/genab/**)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\genab\\Downloads"
+    ]
+  }
+}
